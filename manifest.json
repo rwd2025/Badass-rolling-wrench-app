@@ -1,0 +1,10 @@
+{
+  "name":"Rolling Wrench AI Command Center",
+  "short_name":"RW AI",
+  "start_url":"./index.html",
+  "display":"standalone",
+  "background_color":"#020403",
+  "theme_color":"#00ff7a",
+  "icons":[{"src":"logo.svg","sizes":"192x192","type":"image/svg+xml"}],
+  "description":"Rolling Wrench Diesel professional shop and roadside command center."
+}

@@ -1,0 +1,6 @@
+Node syntax app.js: PASS 
+Buttons: 64 onclick handlers, 35 unique functions, missing=[]
+Patched backend parts endpoint from /parts to /api/parts to match Render advertised endpoints.
+Patched backend test to /api/health.
+Patched clock labels to START / RESUME.
+Static verified: OCR/Tesseract present, SMS link present, signature canvas present, service worker registration present.

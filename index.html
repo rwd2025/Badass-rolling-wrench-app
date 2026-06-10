@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <meta name="theme-color" content="#07140d" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-title" content="Rolling Wrench AI" />
+  <title>Rolling Wrench AI</title>
+  <link rel="manifest" href="manifest.json" />
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+</head>
+<body>
+  <div class="app">
+    <header class="topbar">
+      <button class="icon" onclick="goBack()">←</button>
+      <div class="brand">
+        <div class="logo">RW</div>
+        <div><b>ROLLING WRENCH AI</b><span>James Jacobs • Rolling Wrench Diesel</span></div>
+      </div>
+      <button class="icon" onclick="show('settings')">⚙</button>
+    </header>
+
+    <main id="home" class="screen active">
+      <section class="modebar"><button id="shopMode" class="mode active" onclick="setMode('shop')">SHOP</button><button id="roadMode" class="mode" onclick="setMode('road')">ROADSIDE</button></section>
+      <section class="hero-grid">
+        <div class="glass"><h3>ACTIVE TRUCK</h3><div id="activeTruck">NO ACTIVE TRUCK</div><button onclick="show('truck')">OPEN TRUCK</button></div>
+        <div class="glass"><h3>CUSTOMER</h3><div id="activeCustomer">NO CUSTOMER SELECTED</div><button onclick="show('customer')">OPEN CUSTOMER</button></div>
+      </section>
+      <section class="clock-grid" id="homeClocks"></section>
+      <section class="action-grid">
+        <button onclick="show('truck')">🚛<b>TRUCK / VIN</b></button>
+        <button onclick="show('parts')">⚙️<b>PARTS</b></button>
+        <button onclick="show('scan')">📷<b>SCAN</b></button>
+        <button onclick="show('quote')">⚡<b>QUOTE</b></button>
+        <button onclick="show('workorder')">📋<b>WORK ORDER</b></button>
+        <button onclick="show('invoice')">🧾<b>INVOICE</b></button>
+        <button onclick="show('finance')">📈<b>FINANCES</b></button>
+        <button onclick="show('settings')">⚙️<b>SETTINGS</b></button>
+      </section>
+      <section id="alerts" class="alerts"></section>
+    </main>
+
+    <main id="truck" class="screen"><h1>TRUCK / VIN</h1><input id="vin" placeholder="VIN"><div class="grid2"><input id="year" placeholder="Year"><input id="make" placeholder="Make"><input id="model" placeholder="Model"><input id="engine" placeholder="Engine"></div><div class="row"><button onclick="decodeVin()">DECODE VIN</button><button onclick="saveTruck()">SAVE TRUCK</button><button class="dark" onclick="clearTruck()">CLEAR</button></div><pre id="truckOut"></pre></main>
+
+    <main id="customer" class="screen"><h1>CUSTOMER</h1><input id="custName" placeholder="Customer / Company"><input id="custPhone" placeholder="Phone"><input id="custEmail" placeholder="Email"><div class="row"><button onclick="saveCustomer()">SAVE CUSTOMER</button><button class="dark" onclick="clearCustomer()">CLEAR</button></div><pre id="customerOut"></pre></main>
+
+    <main id="parts" class="screen"><h1>PARTS LOOKUP</h1><textarea id="partSearch" placeholder="Part number, description, engine, or notes"></textarea><div class="row"><button onclick="lookupPart()">LOOKUP</button><button onclick="addPartToQuote()">ADD TO QUOTE</button><button class="dark" onclick="clearParts()">CLEAR</button></div><div class="suppliers"><button onclick="supplier('fleetpride')">FleetPride</button><button onclick="supplier('napa')">NAPA</button><button onclick="supplier('oreilly')">O'Reilly</button><button onclick="supplier('truckpro')">TruckPro</button><button onclick="supplier('google')">Google</button></div><pre id="partsOut"></pre></main>
+
+    <main id="scan" class="screen"><h1>SCAN RECEIPT / PART</h1><input id="scanFile" type="file" accept="image/*" capture="environment" onchange="scanImage(event)"><img id="scanPreview" class="preview"><textarea id="scanText" placeholder="OCR text appears here"></textarea><div class="row"><button onclick="parseScanToQuote()">ADD SCAN TO QUOTE</button><button onclick="parseScanToInvoice()">ADD SCAN TO INVOICE</button><button class="dark" onclick="clearScan()">CLEAR</button></div><pre id="scanOut"></pre></main>
+
+    <main id="quote" class="screen"><h1>QUICK QUOTE</h1><button class="voice" onclick="voiceCommand('quote')">🎙 SAY QUOTE</button><textarea id="quoteJob" placeholder="Job description"></textarea><div class="grid2"><input id="quoteLaborHours" type="number" step="0.1" placeholder="Labor hours"><input id="quoteLaborRate" type="number" placeholder="Labor rate"><input id="quoteParts" type="number" placeholder="Parts cost"><input id="quoteMarkup" type="number" placeholder="Parts markup %"><label class="check"><input id="quoteServiceOn" type="checkbox" checked> Service Call</label><input id="quoteService" type="number" placeholder="Service call"></div><div class="row"><button onclick="buildQuote()">BUILD QUOTE</button><button onclick="textOutput('quoteOut')">SEND TEXT</button><button class="dark" onclick="clearQuote()">CLEAR</button></div><pre id="quoteOut"></pre></main>
+
+    <main id="workorder" class="screen"><h1>WORK ORDER</h1><textarea id="woComplaint" placeholder="Complaint"></textarea><textarea id="woWork" placeholder="Work performed"></textarea><div class="row"><button onclick="buildWorkOrder()">BUILD WORK ORDER</button><button onclick="textOutput('woOut')">SEND TEXT</button><button class="dark" onclick="clearWorkOrder()">CLEAR</button></div><pre id="woOut"></pre></main>
+
+    <main id="invoice" class="screen"><h1>INVOICE</h1><button class="voice" onclick="voiceCommand('invoice')">🎙 SAY INVOICE</button><textarea id="invoiceJob" placeholder="Work performed / invoice notes"></textarea><div class="grid2"><input id="invoiceLaborHours" type="number" step="0.1" placeholder="Labor hours"><input id="invoiceLaborRate" type="number" placeholder="Labor rate"><input id="invoiceParts" type="number" placeholder="Parts cost"><input id="invoiceTax" type="number" placeholder="Tax %"><label class="check"><input id="invoiceServiceOn" type="checkbox" checked> Service Call</label><input id="invoiceService" type="number" placeholder="Service call"></div><h3>CUSTOMER SIGNATURE</h3><canvas id="sig" width="700" height="220"></canvas><div class="row"><button onclick="buildInvoice('customer')">CUSTOMER COPY</button><button onclick="buildInvoice('shop')">SHOP COPY</button><button onclick="buildInvoice('both')">BOTH</button><button onclick="clearSignature()" class="dark">CLEAR SIGN</button><button onclick="textOutput('invoiceOut')">SEND TEXT</button><button class="dark" onclick="clearInvoice()">CLEAR</button></div><pre id="invoiceOut"></pre></main>
+
+    <main id="finance" class="screen"><h1>FINANCES</h1><div class="grid2"><input id="rent" type="number" placeholder="Rent" value="1500"><input id="insurance" type="number" placeholder="Insurance" value="145"><input id="electric" type="number" placeholder="Electric" value="250"><input id="laborRateFinance" type="number" placeholder="Labor rate" value="135"></div><button onclick="buildFinance()">CALCULATE</button><pre id="financeOut"></pre></main>
+
+    <main id="settings" class="screen"><h1>SETTINGS</h1><input id="shopName" placeholder="Shop name"><input id="ownerName" placeholder="Owner name"><input id="phone" placeholder="Shop phone"><input id="backendUrl" placeholder="Render backend"><input id="supabaseUrl" placeholder="Supabase URL"><textarea id="supabaseKey" placeholder="Supabase anon key"></textarea><select id="theme" onchange="applyTheme(this.value)"><option value="green">Rolling Green</option><option value="orange">Diesel Orange</option><option value="red">Snap-On Red</option><option value="blue">Cornwell Blue</option><option value="night">Night Ops</option></select><div class="row"><button onclick="saveSettings()">SAVE</button><button onclick="testBackend()">TEST BACKEND</button><button onclick="testSupabase()">TEST SUPABASE</button><button class="dark" onclick="clearAllData()">CLEAR ALL</button></div><pre id="settingsOut"></pre></main>
+  </div>
+  <nav><button onclick="show('home')">HOME</button><button onclick="show('parts')">PARTS</button><button onclick="show('quote')">QUOTE</button><button onclick="show('invoice')">INVOICE</button><button onclick="show('settings')">MORE</button></nav>
+  <script src="app.js"></script>
+</body>
+</html>
